@@ -5,7 +5,7 @@
 ;; Author: Robin Stephenson <robin@aglet.net>
 ;; Keywords: convenience, weather
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "27.1"))
+;; Package-Requires: ((emacs "29.1"))
 ;; URL: https://github.com/aglet/sparkweather
 
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy
