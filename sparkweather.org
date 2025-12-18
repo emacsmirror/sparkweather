@@ -12,7 +12,7 @@
 
 ;; Author: Robin Stephenson <robin@aglet.net>
 ;; Keywords: convenience, weather
-;; Version: 0.3.0
+;; Version: 0.3.1
 ;; Package-Requires: ((emacs "29.1"))
 ;; URL: https://github.com/aglet/sparkweather
 
@@ -536,12 +536,6 @@ Special mode with keybindings for the weather display buffer.
         cursor-type nil)
   (setq-local show-help-function nil))
 
-(add-to-list 'display-buffer-alist
-             `(,(regexp-quote sparkweather--buffer-name)
-               (display-buffer-reuse-window display-buffer-below-selected)
-               (window-height . fit-window-to-buffer)
-               (window-max-height . sparkweather--window-max-height)
-               (body-function . ,#'select-window)))
 #+end_src
 
 ** Footer
@@ -552,6 +546,8 @@ Footer generation and window height calculation to optionally hide footer lines.
 (defun sparkweather--format-footer ()
   "Generate footer text with timestamp and optional location.
 Returns string suitable for insertion at buffer end."
+  ;; Leading \n creates blank line for visual spacing.
+  ;; sparkweather--window-max-height relies on this to hide only the timestamp line.
   (concat "\n" (format-time-string "%A %F %R")
           (when (and (boundp 'calendar-location-name) calendar-location-name)
             (concat " " calendar-location-name))))
@@ -564,11 +560,23 @@ Returns string suitable for insertion at buffer end."
 
 (defun sparkweather--window-max-height (window)
   "Calculate maximum height for sparkweather WINDOW.
-Returns reduced height when `sparkweather-hide-footer' is enabled, nil otherwise."
+Returns reduced height when `sparkweather-hide-footer' is enabled, nil otherwise.
+Keeps blank line visible as buffer, hiding only timestamp/location line."
   (when (and sparkweather-add-footer sparkweather-hide-footer)
     (with-current-buffer (window-buffer window)
-      (- (count-lines (point-min) (point-max))
-         (sparkweather--footer-line-count)))))
+      ;; Calculate desired body lines (total - 1 to hide timestamp)
+      ;; Relies on sparkweather--format-footer's leading newline to provide neat spacing
+      ;; Then add overhead (mode line, etc.) to get total window height
+      (let* ((desired-body-lines (1- (count-lines (point-min) (point-max))))
+             (overhead (- (window-height window) (window-body-height window))))
+        (+ desired-body-lines overhead)))))
+
+(add-to-list 'display-buffer-alist
+             `(,(regexp-quote sparkweather--buffer-name)
+               (display-buffer-reuse-window display-buffer-below-selected)
+               (window-height . ,(lambda (window)
+                                   (fit-window-to-buffer window (sparkweather--window-max-height window))))
+               (body-function . ,#'select-window)))
 #+end_src
 
 ** Entry formatting
