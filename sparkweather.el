@@ -4,7 +4,7 @@
 
 ;; Author: Robin Stephenson <robin@aglet.net>
 ;; Keywords: convenience, weather
-;; Version: 0.2.0
+;; Version: 0.3.0
 ;; Package-Requires: ((emacs "29.1"))
 ;; URL: https://github.com/aglet/sparkweather
 
@@ -99,8 +99,14 @@ Examples:
                         (symbol :tag "Highlight face"))))
   :group 'sparkweather)
 
-(defcustom sparkweather-show-footer t
-  "Whether to show timestamp and location at bottom of forecast."
+(defcustom sparkweather-add-footer t
+  "Whether to add timestamp and location footer to buffer."
+  :type 'boolean
+  :group 'sparkweather)
+
+(defcustom sparkweather-hide-footer nil
+  "Whether to size window to hide footer.
+Has no effect if `sparkweather-add-footer' is nil."
   :type 'boolean
   :group 'sparkweather)
 
@@ -473,7 +479,29 @@ CURRENT-HOUR, if provided, inserts a narrow no-break space before that hour."
              `(,(regexp-quote sparkweather--buffer-name)
                (display-buffer-reuse-window display-buffer-below-selected)
                (window-height . fit-window-to-buffer)
+               (window-max-height . sparkweather--window-max-height)
                (body-function . ,#'select-window)))
+
+(defun sparkweather--format-footer ()
+  "Generate footer text with timestamp and optional location.
+Returns string suitable for insertion at buffer end."
+  (concat "\n" (format-time-string "%A %F %R")
+          (when (and (boundp 'calendar-location-name) calendar-location-name)
+            (concat " " calendar-location-name))))
+
+(defun sparkweather--footer-line-count ()
+  "Count number of lines in footer."
+  (with-temp-buffer
+    (insert (sparkweather--format-footer))
+    (count-lines (point-min) (point-max))))
+
+(defun sparkweather--window-max-height (window)
+  "Calculate maximum height for sparkweather WINDOW.
+Returns reduced height when `sparkweather-hide-footer' is enabled, nil otherwise."
+  (when (and sparkweather-add-footer sparkweather-hide-footer)
+    (with-current-buffer (window-buffer window)
+      (- (count-lines (point-min) (point-max))
+         (sparkweather--footer-line-count)))))
 
 (defun sparkweather--display-window-entry (window-plist)
   "Create table entry from WINDOW-PLIST.
@@ -541,12 +569,10 @@ Returns list of entries for tabulated-list-mode."
     (setq tabulated-list-entries entries
           tabulated-list-use-header-line nil)
     (tabulated-list-print t)
-    (when sparkweather-show-footer
+    (when sparkweather-add-footer
       (let ((inhibit-read-only t))
         (goto-char (point-max))
-        (insert "\n" (format-time-string "%A %F %R"))
-        (when (and (boundp 'calendar-location-name) calendar-location-name)
-          (insert " " calendar-location-name))))
+        (insert (sparkweather--format-footer))))
     (goto-char (point-min))
     (display-buffer (current-buffer))))
 

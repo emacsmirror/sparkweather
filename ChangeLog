@@ -1,5 +1,11 @@
 2025-12-18  Robin Stephenson  <robin@aglet.net>
 
+	* sparkweather.org (sparkweather-add-footer,
+	sparkweather-hide-footer): Replace sparkweather-show-footer
+	with two options for finer footer control. BREAKING CHANGE:
+	sparkweather-show-footer removed; use sparkweather-add-footer
+	instead for same behaviour.
+
 	* sparkweather.org: Display improvements: dynamic column width
 	calculation based on content, optional footer with timestamp and
 	location (sparkweather-show-footer), and optional FACE argument

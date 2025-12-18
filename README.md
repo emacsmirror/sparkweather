@@ -83,10 +83,15 @@ Theme-aware faces adapt to light and dark backgrounds:
 
 ### Footer display
 
-Hide the timestamp and location footer to save two lines:
+Control whether the footer (timestamp and location) appears in the buffer and whether the window hides it:
 
 ```elisp
-(setq sparkweather-show-footer nil)
+;; Don't add footer to buffer at all
+(setq sparkweather-add-footer nil)
+
+;; Add footer to buffer but size window to hide it (can scroll to see)
+(setq sparkweather-add-footer t
+      sparkweather-hide-footer t)
 ```
 
 ## License
