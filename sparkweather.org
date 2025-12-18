@@ -32,7 +32,7 @@
 ;; the forecast location.
 ;;
 ;; The sparkline display highlights configurable time windows,
-;; such as lunch and commute hours. Customize `sparkweather-time-windows'
+;; such as lunch and commute hours.  Customize `sparkweather-time-windows'
 ;; to add or modify highlighted periods.
 ;;
 ;; Weather icons use Unicode weather glyphs from the Miscellaneous
@@ -401,7 +401,7 @@ Request [[https://open-meteo.com/en/docs][forecast from Open-Meteo]] using coord
   "Validate calendar coordinates are set and within valid ranges."
   (unless (and (boundp 'calendar-latitude) (boundp 'calendar-longitude)
                (numberp calendar-latitude) (numberp calendar-longitude))
-    (error "Calendar location not set. Set `calendar-latitude' and `calendar-longitude'"))
+    (error "Calendar location not set.  Set `calendar-latitude' and `calendar-longitude'"))
   (unless (and (>= calendar-latitude -90) (<= calendar-latitude 90))
     (error "Invalid latitude %s. Must be between -90 and 90" calendar-latitude))
   (unless (and (>= calendar-longitude -180) (<= calendar-longitude 180))
@@ -480,7 +480,9 @@ Unicode block character visualisation inspired by [[https://www.edwardtufte.com/
 #+begin_src emacs-lisp
 (defun sparkweather--normalize-value (val min-val max-val range)
   "Normalise VAL to 0-7 for sparkline character selection.
-Handles edge cases: all-zero data uses floor, constant data uses mid-height."
+MIN-VAL and MAX-VAL define the data range, RANGE is their difference.
+Handles edge cases: all-zero data uses floor, constant data uses
+mid-height."
   (cond
    ((and (zerop range) (zerop max-val)) 0)
    ((zerop range) 4)
@@ -590,7 +592,7 @@ Create table entries from prepared window data.
 #+begin_src emacs-lisp
 (defun sparkweather--display-window-entry (window-plist)
   "Create table entry from WINDOW-PLIST.
-Returns (symbol vector) for tabulated-list-entries, or nil if no weather info."
+Returns (symbol vector) for `tabulated-list-entries', or nil if no weather info."
   (let ((name (plist-get window-plist :name))
         (face (plist-get window-plist :face))
         (info (plist-get window-plist :weather-info)))
@@ -621,7 +623,7 @@ Returns (temps precip-probs temp-min temp-max precip-max rainy-codes)."
 
 (defun sparkweather--create-entries (data current-hour windows)
   "Create table entries for DATA, highlighting CURRENT-HOUR and WINDOWS.
-Returns list of entries for tabulated-list-mode."
+Returns list of entries for `tabulated-list-mode'."
   (pcase-let* ((`(,temps ,precip-probs ,temp-min ,temp-max ,precip-max ,rainy-codes)
                 (sparkweather--calculate-ranges data))
                (`(,window-data ,highlights)
