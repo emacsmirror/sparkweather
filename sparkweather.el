@@ -77,18 +77,19 @@
   '(("Lunch" 12 14)
     ("Commute" 17 19))
   "Time windows to highlight in forecast display.
-Each window colours a portion of the sparkline and displays the worst weather
-for that period.
+Each window colours a portion of the sparkline and displays the worst
+weather for that period.
 
-Define windows as (NAME START-HOUR END-HOUR) or (NAME START-HOUR END-HOUR FACE) where:
+Define windows as (NAME START-HOUR END-HOUR) or
+\(NAME START-HOUR END-HOUR FACE) where:
   NAME is a string describing the window (e.g., \"Lunch\", \"Commute\")
   START-HOUR is the first hour to highlight (0-23)
-  END-HOUR is the hour to stop before (0-23, not included in the window)
-  FACE colours the window; defaults to 'success if omitted
+  END-HOUR is the hour to stop before (0-23, not included)
+  FACE colours the window; defaults to \\='success if omitted
 
 Examples:
-  (\"Lunch\" 12 14) highlights hours 12 and 13 with 'success face
-  (\"Commute\" 17 19 warning) highlights hours 17 and 18 with 'warning face"
+  (\"Lunch\" 12 14) highlights hours 12 and 13 with \\='success face
+  (\"Commute\" 17 19 warning) highlights 17 and 18 with \\='warning face"
   :type '(repeat (choice
                   (list (string :tag "Name")
                         (integer :tag "Start hour (0-23)")
@@ -398,7 +399,7 @@ and weather-codes is a list of WMO codes for that window."
 (defun sparkweather--prepare-window (data window)
   "Prepare sparkline data for WINDOW from weather DATA.
 WINDOW is (name start-hour end-hour) or (name start-hour end-hour face).
-If FACE is omitted, defaults to 'success.
+If FACE is omitted, defaults to \\='success.
 Returns plist with :name :face :indices :weather-info."
   (pcase-let* ((`(,name ,start ,end . ,rest) window)
                (face (or (car rest) 'success))
@@ -478,7 +479,8 @@ CURRENT-HOUR, if provided, inserts a narrow no-break space before that hour."
 (defun sparkweather--format-footer ()
   "Generate footer text with timestamp and optional location.
 Returns string suitable for insertion at buffer end.
-Leading newline provides spacing and allows hiding only timestamp when footer is hidden."
+Leading newline provides spacing, allowing hiding of only the
+timestamp when footer is hidden."
   ;; Leading \n creates blank line for visual spacing.
   ;; sparkweather--window-max-height relies on this to hide only the timestamp line.
   (concat "\n" (format-time-string "%A %F %R")
@@ -493,8 +495,9 @@ Leading newline provides spacing and allows hiding only timestamp when footer is
 
 (defun sparkweather--window-max-height (window)
   "Calculate maximum height for sparkweather WINDOW.
-Returns reduced height when `sparkweather-hide-footer' is enabled, nil otherwise.
-Keeps blank line visible as buffer, hiding only timestamp/location line."
+Returns reduced height when `sparkweather-hide-footer' is enabled,
+nil otherwise.  Keeps blank line visible as buffer, hiding only
+timestamp/location line."
   (when (and sparkweather-add-footer sparkweather-hide-footer)
     (with-current-buffer (window-buffer window)
       ;; Calculate desired body lines (total - 1 to hide timestamp)
